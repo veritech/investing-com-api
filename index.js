@@ -38,8 +38,8 @@ function checkParams(input, period, interval, pointscount) {
  * @param {number} pointscount Number of results returned. Valid values: 60, 70, 120
  * @return {Array} An array of objects with date (timestamp) and value (number) properties
  */
-async function callInvesting(pairId, period, interval, pointscount) {
-  const browser = await puppeteer.launch();
+async function callInvesting(pairId, period, interval, pointscount, puppeteerLaunchArgs) {
+  const browser = await puppeteer.launch(puppeteerLaunchArgs);
   const page = await browser.newPage();
   // eslint-disable-next-line max-len
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36');
@@ -59,13 +59,14 @@ async function callInvesting(pairId, period, interval, pointscount) {
  *                          Valid values: PT1M, PT5M, PT15M, PT30M, PT1H, PT5H, P1D, P1W, P1M
  * @param {number} pointscount Number of results returned, but depends on period and interval too.
  *                             Valid values: 60, 70, 120
+  * @param {number} puppeteerLaunchArgs Launch arguments that are passed to the Puppeter instance at launch
  * @return {Array} An array of objects with date (timestamp) and value (number) properties
  */
-async function investing(input, period = 'P1M', interval = 'P1D', pointscount = 120) {
+async function investing(input, period = 'P1M', interval = 'P1D', pointscount = 120, puppeteerLaunchArgs = {}) {
   try {
     checkParams(input, period, interval, pointscount);
     const pairId = mapping[input]?.pairId || input;
-    const { data } = await callInvesting(pairId, period, interval, pointscount);
+    const { data } = await callInvesting(pairId, period, interval, pointscount, puppeteerLaunchArgs);
     const results = mapResponse(data);
     if (!results.length) {
       throw Error('Wrong input or pairId');
